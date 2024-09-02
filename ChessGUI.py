@@ -62,6 +62,7 @@ class ChessGUI:
             if self.chess_game.board[row][col] and self.chess_game.board[row][col].color == self.chess_game.player_turn:
                 self.chess_game.selected_piece = (row, col)
                 self.highlight_square(row, col)
+                self.highlight_valid_moves(row, col)  # Add this line
         else:
             start_row, start_col = self.chess_game.selected_piece
             if self.chess_game.is_valid_move(start_row, start_col, row, col):
@@ -71,10 +72,15 @@ class ChessGUI:
             self.chess_game.selected_piece = None
         self.update_board_gui()
 
-    def highlight_square(self, row, col):
+    def highlight_valid_moves(self, row, col):
+        valid_moves = self.chess_game.calculate_valid_moves(row, col)
+        for move_row, move_col in valid_moves:
+            self.highlight_square(move_row, move_col, color="green")
+
+    def highlight_square(self, row, col, color="yellow"):
         x1, y1 = col * self.cell_size, (7 - row) * self.cell_size
         x2, y2 = x1 + self.cell_size, y1 + self.cell_size
-        self.canvas.create_rectangle(x1, y1, x2, y2, outline="yellow", width=3, tags="highlight")
+        self.canvas.create_rectangle(x1, y1, x2, y2, outline=color, width=3, tags="highlight")
 
     def clear_highlights(self):
         self.canvas.delete("highlight")

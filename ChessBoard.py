@@ -1,4 +1,6 @@
 from ChessPiece import ChessPiece
+from MoveValidator import MoveValidator
+
 
 class ChessBoard:
     def __init__(self):
@@ -6,6 +8,8 @@ class ChessBoard:
         self.initialize_board()
         self.selected_piece = None
         self.player_turn = "white"
+        self.white_king_pos = (0, 4)
+        self.black_king_pos = (7, 4)
 
     def initialize_board(self):
         # Initialize pawns
@@ -20,24 +24,18 @@ class ChessBoard:
             self.board[7][col] = ChessPiece("black", piece_order[col])
 
     def is_valid_move(self, start_row, start_col, end_row, end_col):
-        piece = self.board[start_row][start_col]
-        if not piece:
-            return False
+        return MoveValidator.is_valid_move(self.board, start_row, start_col, end_row, end_col)
 
-        if self.board[end_row][end_col] and self.board[end_row][end_col].color == piece.color:
-            return False
-
-        # Add more specific move validation logic here for each piece type
-
-        return True
+    def calculate_valid_moves(self, row, col):
+        return MoveValidator.calculate_valid_moves(self.board, row, col)
 
     def move_piece(self, start_row, start_col, end_row, end_col):
-        self.board[end_row][end_col] = self.board[start_row][start_col]
+        piece = self.board[start_row][start_col]
+        self.board[end_row][end_col] = piece
         self.board[start_row][start_col] = None
 
-    def calculate_valid_moves(self, start_row, start_col):
-        piece = self.board[start_row][start_col]
-        if piece.piece_type == "pawn":
-            return [(start_row + 1, start_col), (start_row - 1, start_col)]
-        # Add logic for other piece types
-        return []
+        if piece.piece_type == "king":
+            if piece.color == "white":
+                self.white_king_pos = (end_row, end_col)
+            else:
+                self.black_king_pos = (end_row, end_col)
